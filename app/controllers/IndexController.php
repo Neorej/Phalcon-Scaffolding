@@ -23,7 +23,6 @@ class IndexController extends ControllerBase
      */
     public function formPostAction()
     {
-        $this->flashSession->notice('haaaaa');
         return $this->response->redirect('index/contact');
     }
 
