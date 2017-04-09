@@ -6,9 +6,9 @@ use Phalcon\Db\Reference;
 use Phalcon\Mvc\Model\Migration;
 
 /**
- * Class EmailConfirmationsMigration_100
+ * Class EmailConfirmationsMigration_101
  */
-class EmailConfirmationsMigration_100 extends Migration
+class EmailConfirmationsMigration_101 extends Migration
 {
     /**
      * Define the table structure
@@ -64,7 +64,6 @@ class EmailConfirmationsMigration_100 extends Migration
                         [
                             'type' => Column::TYPE_INTEGER,
                             'unsigned' => true,
-                            'notNull' => true,
                             'size' => 11,
                             'after' => 'created_at'
                         ]
