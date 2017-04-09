@@ -35,11 +35,20 @@ class UsersController extends \Phalcon\Mvc\Controller
         $user = new Users();
         // Assign the posted and filtered form values to the model
         $form->bind($this->request->getPost(), $user);
-
         $user->password = password_hash($user->password, PASSWORD_BCRYPT);
-        $user->save();
+        $user->create();
 
-        // Send email confirmation
+        $email_confirmation = new EmailConfirmations($user->id);
+        $email_body = (new \Phalcon\Mvc\View\SimpleView())->render(
+            'email_templates/email_confirmation',
+            [
+                'name' => $user->name,
+                'code' => $email_confirmation->confirmation_code,
+            ]
+        );
+        $this->mail->sendMail($user->email, $user->name, 'Activate your account', $email_body);
+
+        $this->view->email = $user->email;
     }
 
     public function confirmEmailAction()

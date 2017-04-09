@@ -39,9 +39,9 @@ Class Mail extends \Phalcon\Mvc\User\Component
         $this->phpMailer->Subject = $subject;
         $this->phpMailer->MsgHTML($body);
         $this->phpMailer->AddAddress($recipient_email, $recipient_name);
-        
+
         $is_sent = $this->phpMailer->Send();
-        
+
         // Clean up after sending
         $this->phpMailer->ClearAddresses();
         $this->phpMailer->ClearAttachments();
@@ -51,10 +51,10 @@ Class Mail extends \Phalcon\Mvc\User\Component
         $mail_log->created_at             = time();
         $mail_log->mail_sent              = (int) $is_sent;
         $mail_log->recipient              = $recipient_email;
-        $mail_log->subject                = $subject;
+        $mail_log->subject                = $this->phpMailer->Subject;
         $mail_log->additional_information = $this->phpMailer->ErrorInfo;
         $mail_log->save();
-        
+
         return $is_sent;
     }
 }
