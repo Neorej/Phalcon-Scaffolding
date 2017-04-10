@@ -5,6 +5,9 @@
  */
 class UserTest extends \Codeception\Test\Unit
 {
+    public $user;
+    public $new_user;
+    
     /**
      * @var \UnitTester
      */
@@ -12,42 +15,51 @@ class UserTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-
+        $this->user = new Users();
     }
 
     protected function _after()
     {
-
+        $this->user->delete();
     }
 
     public function testValidation()
     {
         $faker = \Phalcon\DI::getDefault()->get('faker');
         
-        $user = new Users();
-
         // Cannot save empty user
-        $this->assertFalse($user->validation());
+        $this->assertFalse($this->user->validation(), 'User validation succeeded where it should not');
 
-        $user->name     = $faker->name;
-        $user->email    = $faker->email;
-        $user->password = password_hash($faker->uuid, PASSWORD_DEFAULT);
-        $this->assertTrue($user->validation());
-        $this->assertTrue($user->save());
+        $this->user->name     = $faker->name;
+        $this->user->email    = $faker->email;
+        $this->user->password = $faker->uuid;
+        $this->assertTrue($this->user->validation(), 'Failed user validation');
+    }
+    
+    public function testCreate()
+    {
+        $faker = \Phalcon\DI::getDefault()->get('faker');
+        $password = $faker->uuid;
 
-        $new_user           = new Users();
-        $new_user->name     = $faker->name;
-        $new_user->email    = $user->email; // Use email that is already in use
-        $new_user->password = password_hash($faker->uuid, PASSWORD_DEFAULT);
-        $this->assertFalse($new_user->validation());
-        $this->assertFalse($new_user->save());
+        $this->user->name     = $faker->name;
+        $this->user->email    = $faker->email;
+        $this->user->password = $password;
 
-        $new_user->email    = $faker->email;
-        $this->assertTrue($new_user->validation());
-        $this->assertTrue($new_user->save());
-        
-        $user->delete();
-        $new_user->delete();
+        $this->assertTrue($this->user->create(), 'Failed creating user');
+
+        $this->assertTrue(password_verify($password, $this->user->password), 'Failed password_verify');
+
+        $email_confirmation = EmailConfirmations::findFirstByUserId($this->user->id);
+        $this->assertNull($email_confirmation->confirmed_at, 'Failed email confirmation');
+
+        $mail_log = MailLog::findFirstByRecipient($this->user->email);
+        $this->assertEquals('1', $mail_log->mail_sent, 'Failed to log mail');
+
+        $email_confirmation->confirm();
+        $this->assertEquals('1', $email_confirmation->user->email_confirmed, 'Failed to confirm user email');
+
+        // Clean up
+        $mail_log->delete();
     }
 }
 

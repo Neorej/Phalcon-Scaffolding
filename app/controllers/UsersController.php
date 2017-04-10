@@ -6,7 +6,7 @@
 class UsersController extends \Phalcon\Mvc\Controller
 {
     /**
-     * 
+     * User signup form
      */
     public function signupAction()
     {
@@ -17,7 +17,7 @@ class UsersController extends \Phalcon\Mvc\Controller
     }
 
     /**
-     *
+     * Handle POSTs of the user signup form
      */
     public function signupPostAction()
     {
@@ -35,25 +35,35 @@ class UsersController extends \Phalcon\Mvc\Controller
         $user = new Users();
         // Assign the posted and filtered form values to the model
         $form->bind($this->request->getPost(), $user);
-        $user->password = password_hash($user->password, PASSWORD_BCRYPT);
         $user->create();
-
-        $email_confirmation = new EmailConfirmations($user->id);
-        $email_body = (new \Phalcon\Mvc\View\SimpleView())->render(
-            'email_templates/email_confirmation',
-            [
-                'name' => $user->name,
-                'code' => $email_confirmation->confirmation_code,
-            ]
-        );
-        $this->mail->sendMail($user->email, $user->name, 'Activate your account', $email_body);
-
+        
         $this->view->email = $user->email;
     }
 
-    public function confirmEmailAction()
+    /**
+     * Confirm an email address
+     * @param string $confirmation_code
+     */
+    public function confirmEmailAction($confirmation_code = '')
     {
+        $this->view->disable();
         
+        $email_confirmation = EmailConfirmations::findFirst([
+            'confirmation_code = :confirmation_code: AND confirmed_at IS NULL',
+            'bind'      => ['confirmation_code' => $confirmation_code],
+            'bindTypes' => ['confirmation_code' => \Phalcon\Db\Column::BIND_PARAM_STR]
+        ]);
+        
+        if(!$email_confirmation)
+        {
+            $this->flashSession->error('Invalid confirmation code');
+            return $this->response->redirect('users/resendEmailConfirmation');
+        }
+
+        $email_confirmation->confirm();
+
+        $this->flashSession->success('Email confirmed. You can now sign in');
+        return $this->response->redirect('users/login');
     }
 
     public function resendEmailConfirmationAction()

@@ -43,23 +43,38 @@ class EmailConfirmations extends \Phalcon\Mvc\Model
     public $confirmed_at;
 
     /**
-     * @param int $user_id
+     * Set up model relations
      */
-    public function initialize(int $user_id) : void
+    public function initialize()
     {
-        $this->user_id = $user_id;
-        $this->confirmation_code = (new \Phalcon\Security\Random())->uuid;
-        $this->created_at = time();
-        $this->save();
+        $this->belongsTo('user_id', 'Users', 'id', ['alias' => 'user']);
     }
 
+    public function beforeValidationOnCreate()
+    {
+        $this->confirmation_code = (new \Phalcon\Security\Random())->uuid();
+        $this->created_at = time();
+    }
+
+    public function afterCreate()
+    {
+        $email_body = $this->getDI()->get('simpleView')->render(
+            'email_templates/email_confirmation',
+            [
+                'name' => $this->user->name,
+                'code' => $this->confirmation_code,
+            ]
+        );
+        $this->getDI()->get('mail')->sendMail($this->user->email, $this->user->name, 'Activate your account', $email_body);
+    }
+    
     public function confirm()
     {
+        $user = $this->user;
+        $user->email_confirmed = 1;
+        $user->save();
 
-    }
-
-    public function invalidate()
-    {
-        
+        $this->confirmed_at = time();
+        $this->save();
     }
 }

@@ -17,9 +17,3 @@ $I->click('Submit');
 $I->see('Passwords do not match');
 $I->see('Invalid email address');
 $I->see('Passwords must be at least 8 characters');
-
-$I->fillField('password', 'abcdefghijk');
-$I->fillField('passwordConfirmation', 'abcdefghijk');
-$I->fillField('email', $faker->email);
-
-$I->click('Submit');
