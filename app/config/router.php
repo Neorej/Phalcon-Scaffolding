@@ -21,7 +21,7 @@ $router->add('/', [
     'action'     => 'index',
 ]);
 
-$router->add('/users/confirmEmail/{code}', [
+$router->add('/users/confirmEmail/{confirmation_code}', [
     'controller'    => 'users',
     'action'        => 'confirmEmail',
 ]);
