@@ -11,20 +11,20 @@ $router->setUriSource(
     Router::URI_SOURCE_SERVER_REQUEST_URI
 );
 
-$router->add(
-    '/',
-    [
-        'controller' => 'index',
-        'action'     => 'index',
-    ]
-);
+$router->notFound([
+    'controller' => 'index',
+    'action'     => 'notFound',
+]);
 
-$router->notFound(
-    [
-        'controller' => 'index',
-        'action'     => 'notFound',
-    ]
-);
+$router->add('/', [
+    'controller' => 'index',
+    'action'     => 'index',
+]);
+
+$router->add('/users/confirmEmail/{code}', [
+    'controller'    => 'users',
+    'action'        => 'confirmEmail',
+]);
 
 
 return $router;
