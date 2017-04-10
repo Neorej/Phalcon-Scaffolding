@@ -6,8 +6,8 @@ use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Mvc\Url as UrlResolver;
 use Phalcon\Mvc\View;
-use Phalcon\Mvc\View\Engine\Php as PhpEngine;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+use Phalcon\Mvc\View\Simple as SimpleView;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 
 /**
@@ -108,12 +108,45 @@ $di->setShared('view', function ()
             ]);
 
             return $volt;
-        },
-        '.phtml' => PhpEngine::class
+        }
     ]);
 
     // Add the view to the default events manager
     $view->setEventsManager($this->getEventsManager());
+
+    return $view;
+});
+
+/**
+ * Setting up the view component
+ */
+$di->setShared('simpleView', function ()
+{
+    $config = $this->getConfig();
+
+    $view = new SimpleView();
+    $view->setDI($this);
+    $view->setViewsDir($config->application->viewsDir);
+
+    $view->registerEngines([
+        '.volt'  => function ($view)
+        {
+            $config = $this->getConfig();
+
+            $volt = new VoltEngine($view, $this);
+
+            $volt->setOptions([
+                'compiledPath'      => $config->application->cacheDir,
+                'compiledSeparator' => '_'
+            ]);
+
+            return $volt;
+        }
+    ]);
+
+    // DO NOT add the view to the default events manager
+    // We do not want simpleviews to trigger Prophiler events
+    // $view->setEventsManager($this->getEventsManager());
 
     return $view;
 });
