@@ -8,4 +8,4 @@
 
 <p>&nbsp;</p>
 
-<p>If you did not get an email, click <a href="">here</a> to resend it.</p>
+<p>If you did not get an email <a href="{{ url('users/resendEmailConfirmation') }}">click here</a> to send a new confirmation.</p>

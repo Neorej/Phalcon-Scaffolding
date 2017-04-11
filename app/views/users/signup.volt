@@ -23,13 +23,13 @@
             </div>
         </div>
 
-        <hr>
-
         {{ form.render('csrf', ['value': security.getToken()]) }}
 
         <div class="form-group">
            {{ form.render('submit', ['class': 'btn btn-success btn-block btn-lg']) }}
         </div>
+
+        <hr>
 
         <p class="text-center">
             <a href="{{ url('users/signin') }}">Already have an account? Sign in</a>
