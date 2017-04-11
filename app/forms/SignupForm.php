@@ -82,8 +82,7 @@ class SignupForm extends FormBase
             ])
         ]);
         $this->add($passwordConfirmation);
-
-
+        
         $csrf = new Hidden('csrf');
         $csrf->addValidator(
             new IdenticalValidator([
