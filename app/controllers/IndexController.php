@@ -7,13 +7,13 @@ class IndexController extends ControllerBase
 {
     public function indexAction()
     {
-        
+
     }
 
     public function contactAction()
     {
         $form = new \Forms\ContactForm();
-        $form->reuse_previously_submitted_values();
+        $form->reusePreviouslySubmittedValues();
 
         $this->view->form = $form;
     }

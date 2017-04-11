@@ -36,10 +36,14 @@ class SignupPostTest extends \Codeception\Test\Unit
         $values['passwordConfirmation'] = $values['password'];
 
         $this->assertTrue($form->isValid($values));
+        if(!$form->isValid($values))
+        {
+            print_r($form->getMessages());
+            die;
+        }
 
         foreach(['name', 'email', 'password', 'passwordConfirmation'] as $element)
         {
-            echo 'asserting '.$element.'...'.PHP_EOL;
             $original_value = $values[$element];
 
             $values[$element] = '';

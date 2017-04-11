@@ -5,7 +5,6 @@ use \Phalcon\Forms\Element\Text;
 use \Phalcon\Forms\Element\Email;
 use \Phalcon\Forms\Element\Hidden;
 use \Phalcon\Forms\Element\Submit;
-use \Phalcon\Forms\Element\Textarea;
 use \Phalcon\Forms\Element\Password;
 
 use Phalcon\Validation\Validator\PresenceOf     as PresenceOfValidator;

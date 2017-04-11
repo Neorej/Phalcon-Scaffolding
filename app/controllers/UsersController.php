@@ -11,7 +11,7 @@ class UsersController extends \Phalcon\Mvc\Controller
     public function signupAction()
     {
         $form = new \Forms\SignupForm();
-        $form->reuse_previously_submitted_values();
+        $form->reusePreviouslySubmittedValues();
 
         $this->view->form = $form;
     }
@@ -22,19 +22,13 @@ class UsersController extends \Phalcon\Mvc\Controller
     public function signupPostAction()
     {
         $form = new \Forms\SignupForm();
-        if(!$this->request->isPost() || !$form->isValid($this->request->getPost()))
+        $user = new Users();
+
+        if(!$this->request->isPost() || !$form->isValid($this->request->getPost(), $user))
         {
-            foreach($form->getMessages() as $message)
-            {
-                $this->flashSession->error($message);
-            }
-            
-            return $this->response->redirect('users/signup');
+            return $this->response->redirectWithMessage('users/signup', $form->getMessages());
         }
 
-        $user = new Users();
-        // Assign the posted and filtered form values to the model
-        $form->bind($this->request->getPost(), $user);
         $user->create();
         
         $this->view->email = $user->email;
@@ -42,12 +36,12 @@ class UsersController extends \Phalcon\Mvc\Controller
 
     /**
      * Confirm an email address
+     *
      * @param string $confirmation_code
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
     public function confirmEmailAction($confirmation_code = '')
     {
-        $this->view->disable();
-        
         $email_confirmation = EmailConfirmations::findFirst([
             'confirmation_code = :confirmation_code: AND confirmed_at IS NULL',
             'bind'      => ['confirmation_code' => $confirmation_code],
@@ -56,24 +50,55 @@ class UsersController extends \Phalcon\Mvc\Controller
         
         if(!$email_confirmation)
         {
-            $this->flashSession->error('Invalid confirmation code');
-            return $this->response->redirect('users/resendEmailConfirmation');
+            return $this->response->redirectWithMessage('users/resendEmailConfirmation', 'Invalid confirmation code');
         }
 
         $email_confirmation->confirm();
 
-        $this->flashSession->success('Email confirmed. You can now sign in');
-        return $this->response->redirect('users/login');
+        return $this->response->redirectWithMessage('users/signin', 'Email confirmed. You can now sign in', 'success');
     }
 
+    /**
+     *
+     */
     public function resendEmailConfirmationAction()
     {
-        // new resendemailconfirmationform
+        $this->view->form = new \Forms\ResendEmailConfirmationForm();
     }
 
-    public function loginAction()
+    /**
+     *
+     */
+    public function resendEmailConfirmationPostAction()
     {
-        // new loginform
+        $form  = new \Forms\ResendEmailConfirmationForm();
+        $email = new stdClass();
+
+        if(!$this->request->isPost() || !$form->isValid($this->request->getPost(), $email))
+        {
+            return $this->response->redirectWithMessage('users/resendEmailConfirmation', $form->getMessages());
+        }
+        
+        $user = Users::findFirstByEmail($email->email);
+        if(!$user)
+        {
+            return $this->response->redirectWithMessage('users/signup', 'There is no user with this email address. You can sign up here', 'error');
+        }
+        
+        if($user->email_confirmed)
+        {
+            return $this->response->redirectWithMessage('users/signin', 'This email address has already been confirmed', 'info');
+        }
+        
+        $user->createNewEmailConfirmation();
+        
+        $this->view->email = $user->email;
+    }
+
+
+    public function signinAction()
+    {
+        // new signinform
     }
 
     public function logoutAction()

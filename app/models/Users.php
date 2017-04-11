@@ -113,8 +113,14 @@ class Users extends \Phalcon\Mvc\Model
     
     public function afterCreate()
     {
+        $this->createNewEmailConfirmation();
+    }
+    
+    public function createNewEmailConfirmation()
+    {
         $email_confirmation = new EmailConfirmations();
         $email_confirmation->user_id = $this->id;
         $email_confirmation->save();
     }
+    
 }

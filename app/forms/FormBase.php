@@ -1,14 +1,11 @@
 <?php
-
 namespace Forms;
-
-use \Phalcon\Forms\Form;
 
 /**
  * Class FormBase
  * @package Forms
  */
-class FormBase extends Form
+class FormBase extends \Phalcon\Forms\Form
 {
     private $di;
     private $request;
@@ -27,7 +24,7 @@ class FormBase extends Form
      */
     public function initialize()
     {
-        $this->di = \Phalcon\DI::getDefault();
+        $this->di = $this->getDI();
 
         $this->request = $this->di->get('request');
         $this->session = $this->di->get('session');
@@ -45,7 +42,7 @@ class FormBase extends Form
             $this->session->remove('formDataSeen');
         }
 
-        $this->save_form_data_to_session();
+        $this->saveFormDataToSession();
         
         if($this->session->has('formDataSeen'))
         {
@@ -58,7 +55,7 @@ class FormBase extends Form
         }
     }
     
-    private function save_form_data_to_session() : void
+    private function saveFormDataToSession() : void
     {
         if(!$this->request->isPost())
         {
@@ -82,22 +79,9 @@ class FormBase extends Form
     }
 
     /**
-     * @return bool
-     */
-    public function has_nonforged_post_request() : bool
-    {
-        if(!$this->request->isPost())
-        {
-            return false;
-        }
-
-        return $this->di->get('security')->checkToken();
-    }
-
-    /**
      *
      */
-    public function reuse_previously_submitted_values() : void
+    public function reusePreviouslySubmittedValues() : void
     {
         if(!$this->session->has('formData'))
         {

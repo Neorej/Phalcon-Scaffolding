@@ -41,7 +41,7 @@ $di->setShared('url', function ()
     $config = $this->getConfig();
 
     $url = new UrlResolver();
-   // $url->setBaseUri($config->application->baseUri);
+
     $url->setBaseUri($config->application->basePath);
 
     return $url;
@@ -241,4 +241,10 @@ $di->setShared('mail', function () use ($di)
 $di->setShared('faker', function ()
 {
     return Faker\Factory::create();
+});
+
+
+$di->setShared('response', function () use ($di)
+{
+    return new \Library\Response($di);
 });
