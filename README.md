@@ -1,4 +1,4 @@
-# Phalcon project scaffolding (alpha)
+# Phalcon project scaffolding (pre-alpha)
 
 Basic scaffolding for new Phalcon projects
 
