@@ -2,7 +2,7 @@
     <h1>Signup complete!</h1>
 </div>
 
-<p>An email has been sent to {{ email }} to confirm this email address.</p>
+<p>An email has been sent to <b>{{ email }}</b> to confirm this email address.</p>
 
 <p>Press the button to confirm your account</p>
 
