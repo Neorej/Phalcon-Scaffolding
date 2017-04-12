@@ -5,7 +5,7 @@ use \Phalcon\Forms\Element\Text;
 use \Phalcon\Forms\Element\Email;
 use \Phalcon\Forms\Element\Hidden;
 use \Phalcon\Forms\Element\Submit;
-use \Phalcon\Forms\Element\Textarea;
+use \Phalcon\Forms\Element\TextArea;
 
 use \Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use \Phalcon\Validation\Validator\Email as EmailValidator;
@@ -57,7 +57,7 @@ class ContactForm extends FormBase
         $phone->setFilters(['int', 'trim']);
         $this->add($phone);
 
-        $message = new Textarea('message', [
+        $message = new TextArea('message', [
             'placeholder'   => 'Message',
         ]);
         $message->setFilters(['striptags', 'string', 'trim']);
