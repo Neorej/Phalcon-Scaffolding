@@ -98,7 +98,10 @@ class UsersController extends \Phalcon\Mvc\Controller
 
     public function signinAction()
     {
-        // new signinform
+        $form = new \Forms\SigninForm();
+        $form->reusePreviouslySubmittedValues();
+
+        $this->view->form = $form;
     }
 
     public function logoutAction()

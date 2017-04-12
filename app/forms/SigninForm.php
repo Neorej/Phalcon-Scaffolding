@@ -12,10 +12,10 @@ use \Phalcon\Validation\Validator\Email         as EmailValidator;
 use \Phalcon\Validation\Validator\Identical     as IdenticalValidator;
 
 /**
- * Class LoginForm
+ * Class SigninForm
  * @package Forms
  */
-class LoginForm extends FormBase
+class SigninForm extends FormBase
 {
     public function initialize()
     {
