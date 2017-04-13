@@ -2,10 +2,10 @@
 namespace Forms;
 
 /**
- * Class ResendEmailConfirmationForm
+ * Class ResetPasswordForm
  * @package Forms
  */
-class ResendEmailConfirmationForm extends FormBase
+class ResetPasswordForm extends FormBase
 {
     public function initialize()
     {

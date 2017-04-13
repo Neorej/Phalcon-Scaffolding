@@ -243,7 +243,9 @@ $di->setShared('faker', function ()
     return Faker\Factory::create();
 });
 
-
+/**
+ * Extend the Phalcon response class
+ */
 $di->setShared('response', function () use ($di)
 {
     return new \Library\Response($di);

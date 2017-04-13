@@ -21,7 +21,7 @@
 
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <p class="text-center">
-                    <a href="{{ url('users/forgotPassword') }}">Forgot password?</a>
+                    <a href="{{ url('users/resetPassword') }}">Forgot password?</a>
                 </p>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">

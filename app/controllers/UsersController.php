@@ -95,7 +95,9 @@ class UsersController extends \Phalcon\Mvc\Controller
         $this->view->email = $user->email;
     }
 
-
+    /**
+     *
+     */
     public function signinAction()
     {
         $form = new \Forms\SigninForm();
@@ -109,12 +111,12 @@ class UsersController extends \Phalcon\Mvc\Controller
 
     }
 
-    public function forgotPasswordAction()
+    public function resetPasswordAction()
     {
-        // new passwordreset form
+        $this->view->form = new \Forms\ResetPasswordForm();
     }
 
-    public function changePasswordAciton()
+    public function changePasswordAction()
     {
         // new changepasswordform
     }

@@ -28,7 +28,6 @@ class ControllerBase extends Controller
       //  echo $this->faker->words(3, true);
 
           $this->mail->Username = 'rrrr';
-
-
+        
     }
 }

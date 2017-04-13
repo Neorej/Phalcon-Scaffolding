@@ -2,15 +2,7 @@
 namespace Forms;
 
 use \Phalcon\Forms\Element\Text;
-use \Phalcon\Forms\Element\Email;
-use \Phalcon\Forms\Element\Hidden;
-use \Phalcon\Forms\Element\Submit;
 use \Phalcon\Forms\Element\TextArea;
-
-use \Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
-use \Phalcon\Validation\Validator\Email as EmailValidator;
-use \Phalcon\Validation\Validator\Identical as IdenticalValidator;
-
 
 /**
  * Class ContactForm
@@ -22,34 +14,9 @@ class ContactForm extends FormBase
     {
         parent::initialize();
 
-        // Name
-        $name = new Text('name', [
-            'placeholder'   => 'Name',
-            'required'      => 'required',
-        ]);
-        $name->setFilters(['striptags', 'string', 'trim']);
-        $name->addValidators([
-            new PresenceOfValidator([
-                'message'   => 'Name is required'
-            ])
-        ]);
-        $this->add($name);
+        $this->add($this->createUserNameElement());
 
-        // Email
-        $email = new Email('email', [
-            'placeholder'   => 'Email address',
-            'required'      => 'required',
-        ]);
-        $email->setFilters(['email', 'lower', 'trim']);
-        $email->addValidators([
-            new PresenceOfValidator([
-                'message'   => 'Email address is required'
-            ]),
-            new EmailValidator([
-                'message'   => 'Invalid email address'
-            ])
-        ]);
-        $this->add($email);
+        $this->add($this->createUserEmailElement());
 
         $phone = new Text('phone', [
             'placeholder'   => 'Phone',
@@ -62,21 +29,7 @@ class ContactForm extends FormBase
         ]);
         $message->setFilters(['striptags', 'string', 'trim']);
         $this->add($message);
-        
-        $csrf = new Hidden('csrf');
-        $csrf->addValidator(
-            new IdenticalValidator([
-                'value' => $this->security->getSessionToken(),
-                'message' => 'CSRF validation failed',
-            ])
-        );
 
-        $csrf->clear();
-        $this->add($csrf);
-
-        $this->add(new Submit('submit', [
-            'value' => 'Submit',
-            'name'  => 'submit'
-        ]));
+        $this->add($this->createSubmitElement());
     }
 }
