@@ -87,7 +87,7 @@ class UsersController extends \Phalcon\Mvc\Controller
         
         if($user->email_confirmed)
         {
-            return $this->response->redirectWithMessage('users/signin', 'This email address has already been confirmed', 'info');
+            return $this->response->redirectWithMessage('users/signin', 'This email address has already been confirmed', 'notice');
         }
         
         $user->createNewEmailConfirmation();
@@ -106,19 +106,58 @@ class UsersController extends \Phalcon\Mvc\Controller
         $this->view->form = $form;
     }
 
+    /**
+     *
+     */
     public function logoutAction()
     {
 
     }
 
+    /**
+     *
+     */
     public function resetPasswordAction()
     {
         $this->view->form = new \Forms\ResetPasswordForm();
     }
 
+    /**
+     *
+     */
+    public function resetPasswordPostAction()
+    {
+        $form  = new \Forms\ResetPasswordForm();
+        $email = new stdClass();
+
+        if(!$this->request->isPost() || !$form->isValid($this->request->getPost(), $email))
+        {
+            return $this->response->redirectWithMessage('users/resetPassword', $form->getMessages());
+        }
+
+        $user = Users::findFirstByEmail($email->email);
+        if(!$user)
+        {
+            return $this->response->redirectWithMessage('users/signup', 'There is no user with this email address. You can sign up here', 'error');
+        }
+
+        if(!$user->email_confirmed)
+        {
+            return $this->response->redirectWithMessage('users/resetPassword',
+                'Please confirm your e-mailaddress first. <br>
+                If you did not get a confirmation email, <a href="users/resendEmailConfirmation">you can get request a new one here</a>',
+                'notice'
+            );
+        }
+        
+        $user->createNewPasswordReset();
+
+        $this->view->email = $user->email;
+    }
+
     public function changePasswordAction()
     {
-        // new changepasswordform
+        $this->view->form = new \Forms\ChangePasswordForm();
     }
 
     public function saveNewPasswordAction()
@@ -127,4 +166,3 @@ class UsersController extends \Phalcon\Mvc\Controller
     }
 
 }
-

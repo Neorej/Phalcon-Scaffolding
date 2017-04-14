@@ -26,7 +26,7 @@ class Response extends \Phalcon\Http\Response
      */
     public function redirectWithMessage(string $redirectTo, $messages, $messageType = 'error')
     {
-        $messageType = in_array($messageType, ['success', 'notice', 'info', 'error']) ? $messageType : 'error';
+        $messageType = in_array($messageType, ['success', 'notice', 'warning', 'error']) ? $messageType : 'error';
         $messages = is_string($messages) ? [$messages] : $messages;
 
         $flashSession = $this->di->get('flashSession');

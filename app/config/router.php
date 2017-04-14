@@ -26,5 +26,11 @@ $router->add('/users/confirmEmail/{confirmation_code}', [
     'action'        => 'confirmEmail',
 ]);
 
+$router->add('/users/changePassword/{code}', [
+    'controller'    => 'users',
+    'action'        => 'changePassword',
+]);
+
+
 
 return $router;

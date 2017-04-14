@@ -59,6 +59,12 @@ class Users extends \Phalcon\Mvc\Model
                 'action' => Relation::ACTION_CASCADE,
             ]
         ]);
+
+        $this->hasMany('id', 'PasswordResets', 'user_id',[
+            'foreignKey' => [
+                'action' => Relation::ACTION_CASCADE,
+            ]
+        ]);
     }
 
     /**
@@ -115,12 +121,25 @@ class Users extends \Phalcon\Mvc\Model
     {
         $this->createNewEmailConfirmation();
     }
-    
+
+    /**
+     * 
+     */
     public function createNewEmailConfirmation()
     {
         $email_confirmation = new EmailConfirmations();
         $email_confirmation->user_id = $this->id;
         $email_confirmation->save();
+    }
+
+    /**
+     *
+     */
+    public function createNewPasswordReset()
+    {
+        $password_reset = new PasswordResets();
+        $password_reset->user_id = $this->id;
+        $password_reset->save();
     }
     
 }
