@@ -61,5 +61,33 @@ class UserTest extends \Codeception\Test\Unit
         // Clean up
         $mail_log->delete();
     }
+
+    public function testChangePassword()
+    {
+        $faker = \Phalcon\DI::getDefault()->get('faker');
+        $password = $faker->uuid;
+
+        $this->user->name     = $faker->name;
+        $this->user->email    = $faker->email;
+        $this->user->password = $password;
+
+        $this->assertTrue($this->user->create(), 'Failed creating user');
+
+        $this->user->createNewPasswordReset();
+
+        $passwordReset = PasswordResets::findFirstByUserId($this->user->id);
+        $user = $passwordReset->user;
+
+        $user->password = $password;
+        $user->save(); // Saving should hash the password if it has changed
+
+        $this->assertNotEquals($password, $user->password, 'Failed to hash password when saving user');
+
+        $user->save(); // Saving should not hash the password if it hasn't changed
+
+        $this->assertTrue(password_verify($password, $user->password), 'Failed password_verify');
+
+        $passwordReset->delete();
+    }
 }
 

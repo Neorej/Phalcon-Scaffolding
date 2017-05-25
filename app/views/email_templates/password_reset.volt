@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block text %}
-    We received a request to reset the password associated with this e-mail address. This request is valid for 30 minutes.
+    We received a request to reset the password associated with this e-mail address. This request is valid for {{ config.users.passwordResetCodeValidForMinutes }} minutes.
 
     Click the button below to create a new password.
 {% endblock %}

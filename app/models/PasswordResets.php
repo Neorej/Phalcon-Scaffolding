@@ -71,4 +71,26 @@ class PasswordResets extends \Phalcon\Mvc\Model
         );
         $this->getDI()->get('mail')->sendMail($this->user->email, $this->user->name, 'Reset your password', $email_body);
     }
+
+    /**
+     * Check if a password reset can be used to change the password
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        // A password reset can only be used once
+        if($this->used_at > $this->created_at)
+        {
+            return false;
+        }
+
+        // Password resets expire
+        if($this->created_at < (time() - $this->getDI()->get('config')->users->passwordResetCodeValidForMinutes * 60))
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

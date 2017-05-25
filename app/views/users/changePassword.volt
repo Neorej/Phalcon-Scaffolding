@@ -1,5 +1,5 @@
 <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
-    <form action="{{ url('users/changePasswordPost') }}" role="form" method="post" id="contactForm">
+    <form action="{{ url('users/PasswordPost/' ~ code) }}" role="form" method="post" id="contactForm">
         <h2>Change your password</h2>
 
         <div class="row">

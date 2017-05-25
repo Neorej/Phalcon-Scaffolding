@@ -32,15 +32,10 @@ class SignupPostTest extends \Codeception\Test\Unit
 
         $values['name']                 = $faker->name;
         $values['email']                = $faker->email;
-        $values['password']             = $faker->password;
+        $values['password']             = $faker->uuid;
         $values['passwordConfirmation'] = $values['password'];
 
-        $this->assertTrue($form->isValid($values));
-        if(!$form->isValid($values))
-        {
-            print_r($form->getMessages());
-            die;
-        }
+        $this->assertTrue($form->isValid($values), print_r($form->getMessages(), true));
 
         foreach(['name', 'email', 'password', 'passwordConfirmation'] as $element)
         {

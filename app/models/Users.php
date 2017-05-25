@@ -12,6 +12,13 @@ use \Phalcon\Mvc\Model\Relation as Relation;
  */
 class Users extends \Phalcon\Mvc\Model
 {
+    /**
+     *
+     * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
+     */
     public $id;
 
     /**
@@ -54,6 +61,8 @@ class Users extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
+        $this->keepSnapshots(true);
+
         $this->hasMany('id', 'EmailConfirmations', 'user_id',[
             'foreignKey' => [
                 'action' => Relation::ACTION_CASCADE,
@@ -114,7 +123,15 @@ class Users extends \Phalcon\Mvc\Model
 
     public function beforeCreate()
     {
-        $this->password = password_hash($this->password, PASSWORD_BCRYPT);
+        $this->hashPassword();
+    }
+
+    public function beforeUpdate()
+    {
+        if($this->hasChanged('password'))
+        {
+            $this->hashPassword();
+        }
     }
     
     public function afterCreate()
@@ -141,5 +158,9 @@ class Users extends \Phalcon\Mvc\Model
         $password_reset->user_id = $this->id;
         $password_reset->save();
     }
-    
+
+    private function hashPassword() : void
+    {
+        $this->password = password_hash($this->password, PASSWORD_BCRYPT);
+    }
 }

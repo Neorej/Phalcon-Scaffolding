@@ -31,6 +31,11 @@ $router->add('/users/changePassword/{code}', [
     'action'        => 'changePassword',
 ]);
 
+$router->add('/users/changePasswordPost/{code}', [
+    'controller'    => 'users',
+    'action'        => 'changePasswordPost',
+]);
+
 
 
 return $router;

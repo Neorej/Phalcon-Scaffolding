@@ -115,7 +115,7 @@ class UsersController extends \Phalcon\Mvc\Controller
     }
 
     /**
-     *
+     * Form for requesting a new password reset
      */
     public function resetPasswordAction()
     {
@@ -123,7 +123,9 @@ class UsersController extends \Phalcon\Mvc\Controller
     }
 
     /**
+     * Request a new password reset
      *
+     * @return mixed
      */
     public function resetPasswordPostAction()
     {
@@ -143,11 +145,7 @@ class UsersController extends \Phalcon\Mvc\Controller
 
         if(!$user->email_confirmed)
         {
-            return $this->response->redirectWithMessage('users/resetPassword',
-                'Please confirm your e-mailaddress first. <br>
-                If you did not get a confirmation email, <a href="users/resendEmailConfirmation">you can get request a new one here</a>',
-                'notice'
-            );
+            return $this->response->redirectWithMessage('users/resetPassword', 'Please confirm your e-mailaddress first', 'notice');
         }
         
         $user->createNewPasswordReset();
@@ -155,14 +153,52 @@ class UsersController extends \Phalcon\Mvc\Controller
         $this->view->email = $user->email;
     }
 
-    public function changePasswordAction()
+    /**
+     * Form for setting a new password following a reset
+     *
+     * @param $code
+     * @return mixed
+     */
+    public function changePasswordAction($code)
     {
+        $passwordReset = PasswordResets::findFirstByCode($code);
+        if(!$passwordReset || !$passwordReset->isValid())
+        {
+            return $this->response->redirectWithMessage('users/resetPassword', 'This request is invalid or has expired', 'error');
+        }
+
+        $this->view->code = $passwordReset->code;
         $this->view->form = new \Forms\ChangePasswordForm();
     }
 
-    public function saveNewPasswordAction()
+    /**
+     * Save the new password
+     *
+     * @param $code
+     * @return mixed
+     */
+    public function changePasswordPostAction($code)
     {
-        // new changepasswordform
+        $passwordReset = PasswordResets::findFirstByCode($code);
+        if(!$passwordReset || !$passwordReset->isValid())
+        {
+            return $this->response->redirectWithMessage('users/resetPassword', 'This request is invalid or has expired', 'error');
+        }
+        
+        $form = new \Forms\ChangePasswordForm();
+        $user = $passwordReset->user;
+
+        if(!$this->request->isPost() || !$form->isValid($this->request->getPost(), $user))
+        {
+            return $this->response->redirectWithMessage('users/resetPassword', $form->getMessages(), 'error');
+        }
+
+        $user->update();
+
+        $passwordReset->used_at = time();
+        $passwordReset->update();
+
+        return $this->response->redirectWithMessage('users/login', 'Password changed successfully', 'success');
     }
 
 }

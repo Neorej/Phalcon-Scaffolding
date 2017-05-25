@@ -49,6 +49,9 @@ $config = [
         'Sender'    => '',
         'From'      => '',
         'FromName'  => '',
+    ],
+    'users' => [
+        'passwordResetCodeValidForMinutes' => 30
     ]
 ];
 
