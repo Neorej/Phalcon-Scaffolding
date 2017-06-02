@@ -17,12 +17,14 @@ class SigninForm extends FormBase
         
         $this->add($this->createUserPasswordElement());
 
+        /*
         $remember = new Check('remember', [
             'value' => 'yes',
         ]);
         $remember->setLabel('Remember me');
         $this->add($remember);
-
+        */
+        
         $this->add($this->createSubmitElement());
     }
 }

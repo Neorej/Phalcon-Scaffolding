@@ -21,7 +21,7 @@ class IndexController extends ControllerBase
     /**
      * @return mixed
      */
-    public function formPostAction()
+    public function contactPostAction()
     {
         return $this->response->redirect('index/contact');
     }
@@ -33,6 +33,15 @@ class IndexController extends ControllerBase
     {
         $this->view->disable;
         return http_response_code(404);
+    }
+
+    /**
+     * @return int
+     */
+    public function forbiddenAction()
+    {
+        $this->view->disable;
+        return http_response_code(403);
     }
 }
 

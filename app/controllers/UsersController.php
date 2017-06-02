@@ -106,12 +106,25 @@ class UsersController extends \Phalcon\Mvc\Controller
         $this->view->form = $form;
     }
 
-    /**
-     *
-     */
-    public function logoutAction()
+    public function signinPostAction()
     {
+        $form = new \Forms\SigninForm();
+        if(!$this->request->isPost() || !$form->isValid($this->request->getPost()))
+        {
+            return $this->response->redirectWithMessage('users/signin', $form->getMessages(), 'error');
+        }
 
+        //  $form->get('email');  <--  @todo test if this works
+        try
+        {
+            $this->auth->signin($this->request->getPost('email'), $this->request->getPost('password'));
+        }
+        catch(Exception $e)
+        {
+            return $this->response->redirectWithMessage('users/signin', $e->getMessage(), 'error');
+        }
+
+        return $this->response->redirectWithMessage('users/manage', 'Signed in', 'success');
     }
 
     /**
@@ -164,7 +177,7 @@ class UsersController extends \Phalcon\Mvc\Controller
         $passwordReset = PasswordResets::findFirstByCode($code);
         if(!$passwordReset || !$passwordReset->isValid())
         {
-            return $this->response->redirectWithMessage('users/resetPassword', 'This request is invalid or has expired', 'error');
+            return $this->response->redirectWithMessage('users/resetPassword', 'This code is invalid or has expired', 'error');
         }
 
         $this->view->code = $passwordReset->code;
@@ -182,7 +195,7 @@ class UsersController extends \Phalcon\Mvc\Controller
         $passwordReset = PasswordResets::findFirstByCode($code);
         if(!$passwordReset || !$passwordReset->isValid())
         {
-            return $this->response->redirectWithMessage('users/resetPassword', 'This request is invalid or has expired', 'error');
+            return $this->response->redirectWithMessage('users/resetPassword', 'This code is invalid or has expired', 'error');
         }
         
         $form = new \Forms\ChangePasswordForm();
@@ -201,4 +214,21 @@ class UsersController extends \Phalcon\Mvc\Controller
         return $this->response->redirectWithMessage('users/login', 'Password changed successfully', 'success');
     }
 
+
+    public function manageAction()
+    {
+        if($this->auth->isSignedIn())
+        {
+            die('Ok');
+        }
+        die('Not ok');
+    }
+    public function managePostAction()
+    {
+        if($this->auth->isSignedIn())
+        {
+            die('Ok');
+        }
+        die('Not ok');
+    }
 }

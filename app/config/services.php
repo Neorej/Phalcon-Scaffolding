@@ -10,34 +10,37 @@ use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\View\Simple as SimpleView;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 
+use Phalcon\Cache\Multiple;
+use Phalcon\Cache\Backend\Apc as ApcCache;
+use Phalcon\Cache\Backend\File as FileCache;
+use Phalcon\Cache\Frontend\Data as DataFrontend;
+use Phalcon\Cache\Backend\Libmemcached as MemcachedCache;
+
 /**
  * Shared configuration service
  */
-$di->setShared('config', function ()
-{
+$di->setShared('config', function (){
     return require APP_PATH.'/config/config.php';
 });
 
 /**
  * Load the
  */
-$di->setShared('router', function() {
-    return require  APP_PATH.'/config/router.php';
+$di->setShared('router', function (){
+    return require APP_PATH.'/config/router.php';
 });
 
 /**
  * Create a "default" event manager
  */
-$di->setShared('eventsManager', function ()
-{
+$di->setShared('eventsManager', function (){
     return new EventsManager();
 });
 
 /**
  * The URL component is used to generate all kind of urls in the application
  */
-$di->setShared('url', function ()
-{
+$di->setShared('url', function (){
     $config = $this->getConfig();
 
     $url = new UrlResolver();
@@ -50,30 +53,30 @@ $di->setShared('url', function ()
 /**
  * Setting up the dispatcher
  */
-$di->set('dispatcher', function()
-{
+$di->set('dispatcher', function (){
     $eventsManager = $this->getEventsManager();
-    
+
     // Redirect to 404 page if the controller or action does not exist
     $eventsManager->attach('dispatch:beforeException',
-        function($event, $dispatcher, $exception)
-        {
-            switch($exception->getCode())
-            {
+        function ($event, $dispatcher, $exception){
+            switch ($exception->getCode()) {
                 default:
                     return true;
                 case Phalcon\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
                 case Phalcon\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                     $dispatcher->forward([
                         'controller' => 'index',
-                        'action'     => 'notFound'
+                        'action'     => 'notFound',
                     ]);
+
                     return false;
             }
         }
     );
-    
+
     $eventsManager->attach('dispatch:beforeExecuteRoute', new \Forms\FormBase());
+
+    $eventsManager->attach('dispatch:beforeExecuteRoute', new \Library\AccessControlList());
 
     // Create dispatcher
     $dispatcher = new MvcDispatcher();
@@ -87,8 +90,7 @@ $di->set('dispatcher', function()
 /**
  * Setting up the view component
  */
-$di->setShared('view', function ()
-{
+$di->setShared('view', function (){
     $config = $this->getConfig();
 
     $view = new View();
@@ -96,19 +98,18 @@ $di->setShared('view', function ()
     $view->setViewsDir($config->application->viewsDir);
 
     $view->registerEngines([
-        '.volt'  => function ($view)
-        {
+        '.volt' => function ($view){
             $config = $this->getConfig();
 
             $volt = new VoltEngine($view, $this);
 
             $volt->setOptions([
                 'compiledPath'      => $config->application->cacheDir,
-                'compiledSeparator' => '_'
+                'compiledSeparator' => '_',
             ]);
 
             return $volt;
-        }
+        },
     ]);
 
     // Add the view to the default events manager
@@ -120,8 +121,7 @@ $di->setShared('view', function ()
 /**
  * Setting up the view component
  */
-$di->setShared('simpleView', function ()
-{
+$di->setShared('simpleView', function (){
     $config = $this->getConfig();
 
     $view = new SimpleView();
@@ -129,19 +129,18 @@ $di->setShared('simpleView', function ()
     $view->setViewsDir($config->application->viewsDir);
 
     $view->registerEngines([
-        '.volt'  => function ($view)
-        {
+        '.volt' => function ($view){
             $config = $this->getConfig();
 
             $volt = new VoltEngine($view, $this);
 
             $volt->setOptions([
                 'compiledPath'      => $config->application->cacheDir,
-                'compiledSeparator' => '_'
+                'compiledSeparator' => '_',
             ]);
 
             return $volt;
-        }
+        },
     ]);
 
     // DO NOT add the view to the default events manager
@@ -151,11 +150,29 @@ $di->setShared('simpleView', function ()
     return $view;
 });
 
+$di->setShared('cache', function (){
+    $cacheConfig = $this->getConfig()->get('cache');
+
+    return new Multiple([
+        new ApcCache(
+            new DataFrontend([
+                'lifetime' => 3600,
+            ]),
+            $cacheConfig->apc->toArray()
+        ),
+        new FileCache(
+            new DataFrontend([
+                'lifetime' => 604800,
+            ]),
+            $cacheConfig->file->toArray()
+        ),
+    ]);
+});
+
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
-$di->setShared('db', function ()
-{
+$di->setShared('db', function (){
     $config = $this->getConfig();
 
     $class = 'Phalcon\Db\Adapter\Pdo\\'.$config->database->adapter;
@@ -164,11 +181,10 @@ $di->setShared('db', function ()
         'username' => $config->database->username,
         'password' => $config->database->password,
         'dbname'   => $config->database->dbname,
-        'charset'  => $config->database->charset
+        'charset'  => $config->database->charset,
     ];
 
-    if($config->database->adapter == 'Postgresql')
-    {
+    if ($config->database->adapter == 'Postgresql') {
         unset($params['charset']);
     }
 
@@ -182,29 +198,26 @@ $di->setShared('db', function ()
 /**
  * If the configuration specifies the use of metadata adapter use it or use memory otherwise
  */
-$di->setShared('modelsMetadata', function ()
-{
+$di->setShared('modelsMetadata', function (){
     return new MetaDataAdapter();
 });
 
 /**
  * Register the session flash service with the Twitter Bootstrap classes
  */
-$di->set('flash', function ()
-{
+$di->set('flash', function (){
     return new Flash([
         'error'   => 'alert alert-danger',
         'success' => 'alert alert-success',
         'notice'  => 'alert alert-info',
-        'warning' => 'alert alert-warning'
+        'warning' => 'alert alert-warning',
     ]);
 });
 
 /**
  * Start the session the first time some component requests the session service
  */
-$di->setShared('session', function ()
-{
+$di->setShared('session', function (){
     $session = new SessionAdapter();
     $session->start();
 
@@ -212,41 +225,43 @@ $di->setShared('session', function ()
 });
 
 /**
+ * Set up auth servers
+ */
+$di->setShared('auth', function () use ($di){
+    return new \Library\Auth();
+});
+
+/**
  * Set up the Prophiler profiler
  */
-$di->setShared('profiler', function ()
-{
+$di->setShared('profiler', function (){
     return new \Fabfuel\Prophiler\Profiler();
 });
 /**
  * ...and the Prophiler logger
  * (Implements psr/log)
  */
-$di->setShared('logger', function ()
-{
+$di->setShared('logger', function (){
     return new \Fabfuel\Prophiler\Adapter\Psr\Log\Logger($this->getProfiler());
 });
 
 /**
- * Set up Swiftmailer
+ * Set up mailer
  */
-$di->setShared('mail', function () use ($di) 
-{
+$di->setShared('mail', function () use ($di){
     return new \Library\Mail($di->get('config')->mail);
 });
 
 /**
  * Set up faker service
  */
-$di->setShared('faker', function ()
-{
+$di->setShared('faker', function (){
     return Faker\Factory::create();
 });
 
 /**
  * Extend the Phalcon response class
  */
-$di->setShared('response', function () use ($di)
-{
+$di->setShared('response', function () use ($di){
     return new \Library\Response($di);
 });
