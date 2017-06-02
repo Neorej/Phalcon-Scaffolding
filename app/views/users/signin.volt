@@ -1,5 +1,5 @@
 <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
-    <form action="{{ url('users/signupPost') }}" role="form" method="post" id="contactForm">
+    <form action="{{ url('users/signinPost') }}" role="form" method="post" id="contactForm">
         <h2>Sign in</h2>
         <div class="form-group">
             {{ form.render('email', ['class': 'form-control input-lg']) }}
@@ -11,7 +11,7 @@
 
         {{ form.render('csrf', ['value': security.getToken()]) }}
 
-        <div class="form-group">
+        <div class="form-group">5
             {{ form.render('submit', ['class': 'btn btn-success btn-block btn-lg']) }}
         </div>
 
